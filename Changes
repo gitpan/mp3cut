@@ -1,5 +1,8 @@
 Revision history for mp3cut, mp3cat and cddb2cue.
 
+1.08  Sun Feb  8 17:11:23 2004
+	- Use File::Spec in test files for platform-neutral file names.
+
 1.07  Sat Jan 10 16:44:36 2004
 	- In CUE files, INDEX is MM:SS:FF, not MM:SS:mm.
 

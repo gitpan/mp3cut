@@ -1,6 +1,6 @@
 use 5.006;
 use strict;
-use ExtUtils::MakeMaker;
+use ExtUtils::MakeMaker 6.03;
 use Config;
 
 my @scripts = qw(mp3cut mp3cat cddb2cue);
@@ -35,6 +35,7 @@ WriteMakefile(
     VERSION_FROM	=> 'script/mp3cut',
     PREREQ_PM		=> { 'Getopt::Long' => 2.33,
 			     'Test::More' => 0.00,
+			     'File::Spec' => 0.00,
 			     'MPEG::Audio::Frame' => 0.08,
 			     'CDDB::File' => 1.03,
 			   },
