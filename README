@@ -1,4 +1,4 @@
-mp3cut version 1.05
+mp3cut version 1.06
 ====================
 
 This package provides a couple of tools to cut and cat MP3 audio files
@@ -27,12 +27,13 @@ This module requires these other modules and libraries:
   all:
     Getopt::Long	2.33
   mp3cut, mp3cat:
-    MPEG::Audio::File	0.04
+    MPEG::Audio::File	0.04 0.05 0.06 -- NOT 0.07
   cddb2cue
     CDDB::File		1.03
 
 Do not use older versions of MPEG::Audio::File, it is known to produce
 erroneous output.
+Version 0.07 produces erroneous output.
 
 DISCLAIMER
 
