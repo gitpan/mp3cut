@@ -29,12 +29,13 @@ package ID3Tools (yet unreleased).
 EOD
 }
 
+my $x =
 WriteMakefile(
     NAME		=> 'mp3cut',
     VERSION_FROM	=> 'script/mp3cut',
     PREREQ_PM		=> { 'Getopt::Long' => 2.33,
 			     'Test::More' => 0.00,
-			     'MPEG::Audio::Frame' => 0.04,
+			     'MPEG::Audio::Frame' => 0.08,
 			     'CDDB::File' => 1.03,
 			   },
    EXE_FILES		=> [ map { "script/$_" } @scripts ],
@@ -43,4 +44,18 @@ WriteMakefile(
        AUTHOR        => 'Johan Vromans <jv@cpan.org>') : ()),
 );
 
+my $name    = $x->{NAME};
+my $version = $x->{VERSION};
 
+my $fh;
+if ( open ($fh, "$name.spec.in") ) {
+    print "Writing RPM spec file...\n";
+    my $newfh;
+    open ($newfh, ">$name.spec");
+    while ( <$fh> ) {
+	s/%define modname \w+/%define modname $name/;
+	s/%define modversion \d+\.\d+/%define modversion $version/;
+	print $newfh $_;
+    }
+    close($newfh);
+}

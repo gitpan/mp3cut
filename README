@@ -1,5 +1,5 @@
-mp3cut version 1.06
-====================
+mp3cut - split and join MP3 files
+=================================
 
 This package provides a couple of tools to cut and cat MP3 audio files
 at the frame level.
@@ -27,7 +27,7 @@ This module requires these other modules and libraries:
   all:
     Getopt::Long	2.33
   mp3cut, mp3cat:
-    MPEG::Audio::File	0.04 0.05 0.06 -- NOT 0.07
+    MPEG::Audio::File	0.04 0.05 0.06 0.08 -- NOT 0.07
   cddb2cue
     CDDB::File		1.03
 
@@ -42,7 +42,7 @@ files. Never throw away the original data. USE AT YOUR OWN RISK.
 
 COPYRIGHT AND LICENCE
 
-This programs is Copyright 2003, Squirrel Consultancy.
+This programs is Copyright 2003, 2004, Squirrel Consultancy.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the Perl Artistic License or the GNU General
