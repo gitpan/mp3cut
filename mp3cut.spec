@@ -1,11 +1,11 @@
 %define modname mp3cut
-%define modversion 1.04
+%define modversion 1.05
 %define modpath authors/id/J/JV/JV/%{modname}-%{modversion}.tar.gz
 %define modreq perl
 
 Name: %{modname}
 Version: %{modversion}
-Release: %{modversion}
+Release: 1
 Source: ftp://ftp.cpan.org/pub/CPAN/%{modpath}
 
 URL: http://www.cpan.org/
@@ -13,14 +13,23 @@ BuildArch: noarch
 BuildRoot: %{_tmppath}/rpm-buildroot-%{name}-%{version}-%{release}
 Prefix: %{_prefix}
 
-Summary: Perl module %{modname}
-License: distributable
-Group: Development/Languages
+Summary: MP3 file splitter / concatenator
+License: Artistic or GPL
+Group: Applications/Multimedia
 Requires: %{modreq}
 BuildPrereq: %{modreq}
+Packager: jv@cpan.org
 
 %description
-This package contains the Perl module %{modname} from CPAN.
+This package provides a couple of tools to cut and cat MP3 audio files
+at the frame level.
+
+* mp3cut uses a so called 'cue sheet' to cut an MP3 audio file into
+  individual pieves (usually tracks)
+
+* mp3cat concatenates the audio data from one or more MP3 files.
+
+* cddb2cue generates a cue file from a CDDB file.
 
 %define __find_provides /usr/lib/rpm/find-provides.perl
 %define __find_requires /usr/lib/rpm/find-requires.perl
@@ -49,8 +58,3 @@ rm -rf %buildroot
 
 %files -f rpm-files
 %defattr(-,root,root)
-
-%changelog
-* Thu Jul 31 2003 Jos Vos <jos@xos.nl> 1.08-XOS.1
-- Build for LinuX/OS 2.0.1.
-- Initial version.

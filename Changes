@@ -1,5 +1,8 @@
 Revision history for mp3cut, mp3cat and cddb2cue.
 
+1.04  Sun Aug  3 10:37:00 2003
+	- updated requirement for MPEG::Audio::Frame 0.04.
+
 1.04  Wed Jul 31 18:23:51 2003
 	- initial release
 

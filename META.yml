@@ -1,0 +1,13 @@
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         mp3cut
+version:      1.05
+version_from: script/mp3cut
+installdirs:  site
+requires:
+    CDDB::File:                    1.03
+    Getopt::Long:                  2.33
+    MPEG::Audio::Frame:            0.04
+    Test::More:                    0
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.13

@@ -13,3 +13,4 @@ script/mp3cut
 script/mp3cat
 script/cddb2cue
 mp3cut.spec
+META.yml                                Module meta-data (added by MakeMaker)

@@ -34,7 +34,7 @@ WriteMakefile(
     VERSION_FROM	=> 'script/mp3cut',
     PREREQ_PM		=> { 'Getopt::Long' => 2.33,
 			     'Test::More' => 0.00,
-			     'MPEG::Audio::Frame' => 0.03,
+			     'MPEG::Audio::Frame' => 0.04,
 			     'CDDB::File' => 1.03,
 			   },
    EXE_FILES		=> [ map { "script/$_" } @scripts ],
