@@ -1,11 +1,12 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         mp3cut
-version:      1.07
+version:      1.10
 version_from: script/mp3cut
 installdirs:  site
 requires:
     CDDB::File:                    1.03
+    File::Spec:                    0
     Getopt::Long:                  2.33
     MPEG::Audio::Frame:            0.08
     Test::More:                    0
