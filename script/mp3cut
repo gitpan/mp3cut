@@ -1,0 +1,435 @@
+#!/usr/bin/perl -w
+my $RCS_Id = '$Id: mp3cut.pl,v 1.4 2003/07/30 10:46:13 jv Exp $ ';
+
+# Skeleton for Getopt::Long.
+
+# Author          : Johan Vromans
+# Created On      : Sun Jul 13 14:30:33 2003
+# Last Modified By: Johan Vromans
+# Last Modified On: Wed Jul 30 12:26:43 2003
+# Update Count    : 88
+# Status          : Unknown, Use with caution!
+
+################ Common stuff ################
+
+$VERSION = sprintf("%d.%02d", '$Revision: 1.4 $ ' =~ /: (\d+)\.(\d+)/);
+
+use strict;
+
+# Package name.
+my $my_package = 'Sciurix';
+# Program name and version.
+my ($my_name, $my_version) = $RCS_Id =~ /: (.+).pl,v ([\d.]+)/;
+# Tack '*' if it is not checked in into RCS.
+$my_version .= '*' if length('$Locker:  $ ') > 12;
+
+use FindBin;
+use lib $FindBin::Bin;
+
+################ Command line parameters ################
+
+my $id3tags = 0;		# add ID3 tags
+my $verbose = 1;		# more verbosity
+
+# Development options (not shown with --help).
+my $debug = 0;			# debugging
+our $trace = 0;			# trace (show process)
+my $test = 0;			# test mode.
+
+# Process command line options.
+app_options();
+
+# Post-processing.
+$trace |= ($debug || $test);
+
+################ Presets ################
+
+my $TMPDIR = $ENV{TMPDIR} || $ENV{TEMP} || '/usr/tmp';
+
+################ The Process ################
+
+use MPEG::Audio::Frame;
+# use CueFile;
+# use MP3Tools qw(trackfile);
+
+foreach my $cue ( @ARGV ) {
+    mp3cut($cue);
+}
+
+################ Subroutines ################
+
+sub mp3cut {
+    my ($cue) = @_;
+    $cue = new CueFile($cue);
+
+    warn("Processing ", $cue->file, "\n") if $verbose;
+    open (my $mpf, $cue->file) or die(($cue->file) . ": $!");
+
+    my $out;			# name of output file
+    my $outf;			# file handle
+    my $frames = 0;		# frames written
+    my $tlen = 0;		# total time
+
+    my $trk = 1;		# first track
+    my $track = $cue->track($trk); # get it
+    my $split = $track->index;	# get its index (should be zero!)
+
+    my $frame;
+    while ( $frame = MPEG::Audio::Frame->read($mpf) ) {
+
+	# Check if this frame still fits.
+	$tlen += $frame->seconds;
+	if ( $split == 0 || ($split > 0 && $tlen > $split) ) {
+
+	    # Close output, if any.
+	    if ( $outf ) {
+		warn("  Track ", $trk-1, ": $out: $frames frames\n")
+		  if $trace;
+		wrapup($outf, $out, $cue->track($trk-1));
+	    }
+
+	    # New output file.
+	    $out = trackfile($track->track, $track->title, ".mp3");
+	    printf STDERR (" %2d \@ %8s  %s\n",
+			   $trk, dpsecs($split), $out) if $verbose;
+	    open ($outf, ">$out") || die("$outf: $!\n");
+
+	    # Reset and advance.
+	    $frames = 0;
+	    $trk++;
+	    $track = $cue->track($trk);
+	    $split = $track->index;
+	}
+
+	# Copy frame data.
+	print $outf $frame->asbin;
+	$frames++;
+    }
+
+    # Close last output, if any.
+    if ( $outf ) {
+	warn("  Track ", $trk-1, ": $out: $frames frames\n")
+	  if $trace;
+	wrapup($outf, $out, $cue->track($trk-1));
+    }
+}
+
+sub wrapup {
+    my ($outf, $out, $track) = @_;
+
+    return unless $outf;
+    close($outf);
+
+    return unless $id3tags;
+
+    unless ( eval { use ID3Tag; } ) {
+	warn("Cannot load package ID3Tag -- ID3 tag generation disabled\n");
+	$id3tags = 0;
+    }
+
+    my $tag = new ID3Tag($out);
+    $tag->artist($track->artist);
+    $tag->album($track->album);
+    $tag->title($track->title);
+    $tag->track($track->track);
+    $tag->update;
+}
+
+sub dpsecs {
+    my $secs = shift;
+    my ($mm, $ss);
+    $secs *= 100;
+    $mm = int($secs / 6000);
+    $secs %= 6000;
+    $ss = int($secs / 100);
+    $secs %= 100;
+    sprintf ("%d:%02d:%02d", $mm, $ss, $secs);
+}
+
+################ Copied from MP3Tools ################
+
+use constant VFAT => 1;
+
+# Sanitize a filename for use on disk.
+sub fsanitize {
+    local($_) = shift;
+    tr{/}{;};
+    s/_+;/;/g;
+    s/;_*/;_/g;
+    if ( VFAT ) {
+	s/:/_/g;
+	s/["\`?!|]//g;
+	s/\.$//g;
+    }
+    $_;
+}
+
+# Generate 'preferred filename' for a track.
+sub trackfile {
+    my ($track, $title, $exttmpl) = @_;
+    my $nn = "";
+    if ( defined $track ) {
+	$nn .= $track;
+	$nn = "0".$nn if length($nn) < 2;
+	$nn .= "_" . join("_", split(' ',$title));
+    }
+    else {
+	$nn = join("_", split(' ',$title));
+    }
+    $nn .= $1 if $exttmpl && $exttmpl =~ /(\.[^.]+)$/;
+    fsanitize($nn);
+}
+
+################ Command Line Options ################
+
+use Getopt::Long 2.33;		# will enable help/version
+
+sub app_options {
+
+    GetOptions(ident	=> \&app_ident,
+	       'verbose|v' => \$verbose,
+	       silent   => sub { $verbose = 0 },
+
+	       # application specific options go here
+	       id3tags  => \$id3tags,
+
+	       # development options
+	       test	=> \$test,
+	       trace	=> \$trace,
+	       debug	=> \$debug)
+      or Getopt::Long::HelpMessage(2);
+}
+
+sub app_ident {
+    print STDOUT ("This is $my_package [$my_name $my_version]\n");
+}
+
+################ CueFile.pm -- Parse .cue files ################
+
+# Author          : Johan Vromans
+# Created On      : Wed Jul 16 11:57:42 2003
+# Merged          : Wed Jul 30 11:38:20 2003
+
+package CueFile;
+
+use strict;
+use warnings;
+
+sub new {
+    my ($pkg, $file) = @_;
+    my $self = bless {}, $pkg;
+
+    require "shellwords.pl";
+
+    $self->{_file} = $file;
+    my $fd;
+    if ( ref($file) ) {		# assume FILE, for testing
+	$fd = $file;
+    }
+    else {
+	open($fd, $file) or die("$file: $!\n");
+    }
+
+    # By initializing track to self, initial settings for FILE, TITLE and so
+    # on go to the cue object until we've seen a TRACK specification.
+    my $track = $self;
+    my $title;
+
+    while ( <$fd> ) {
+
+	my @w = shellwords($_);
+	next unless @w;
+
+	my $try = lc($w[0]);
+	if ( $try eq "performer" ) {
+	    $track->{artist} = $w[1];
+	}
+	elsif ( $try eq "title" ) {
+	    $track->{title} = $w[1];
+	}
+	elsif ( $try eq "file" ) {
+	    $track->{file} = $w[1];
+	}
+	elsif ( $try eq "track" && lc($w[2]) eq "audio" ) {
+	    $track = new CueFile::Track;
+	    $self->{tracks}->[$w[1]] = $track;
+	    $track->{track} = $w[1];
+	    $track->{artist} = $self->{artist};
+	    $track->{album} = $self->{title};
+	}
+	elsif ( $try eq "index" ) {
+	    my $ts = $w[2];	# MM:SS:ms
+	    my @ts = split(/:/, $ts);
+	    my $secs = $ts[1] . "." . $ts[2];
+	    $secs += 60 * $ts[0];
+	    $track->{index} = $secs;
+	}
+	else {
+	    warn("$file: $_");
+	}
+    }
+
+    # Append a sentinel track object, for easy processing.
+    $track = new CueFile::Track;
+    push(@{$self->{tracks}}, $track);
+    $track->{track} = @{$self->{tracks}} - 1;
+    $track->{title} = "End Sentinel";
+    $track->{index} = -1;
+
+    $self;
+}
+
+# CueFile methods.
+sub artist { my $self = shift; $self->{artist} }
+sub title  { my $self = shift; $self->{title} }
+sub file   { my $self = shift; $self->{file} }
+sub tracks { my $self = shift; scalar @{$self->{tracks}} - 2 }
+sub track  { my ($self, $ix) = @_; $self->{tracks}->[$ix] }
+
+package CueFile::Track;
+
+sub new {
+    my ($pkg) = @_;
+    bless {}, $pkg;
+}
+
+# CueFile::Track methods.
+sub artist { my $self = shift; $self->{artist} }
+sub title  { my $self = shift; $self->{title} }
+sub album  { my $self = shift; $self->{album} }
+sub index  { my $self = shift; $self->{index} }
+sub track  { my $self = shift; $self->{track} }
+
+=for testing
+
+package CueFile::Test;
+
+if ( !caller ) {
+    my $c = new CueFile(\*DATA);
+    use Data::Dumper;
+    print Dumper($c);
+    print $c->tracks, " tracks\n";
+}
+
+__DATA__
+PERFORMER "Pink Floyd"
+TITLE "Wish You Were Here"
+FILE "Wish_You_Were_Here.mp3" WAVE
+  TRACK 01 AUDIO
+    TITLE "Shine on You Crazy Diamond (Part I-V)"
+    PERFORMER "Pink Floyd"
+    INDEX 01 00:00:00
+  TRACK 02 AUDIO
+    TITLE "Welcome to The Machine"
+    PERFORMER "Pink Floyd"
+    INDEX 01 13:32:67
+  TRACK 03 AUDIO
+    TITLE "Have a Cigar"
+    PERFORMER "Pink Floyd"
+    INDEX 00 21:03:25
+    INDEX 01 21:06:17
+  TRACK 04 AUDIO
+    TITLE "Wish You Were Here"
+    PERFORMER "Pink Floyd"
+    INDEX 01 26:30:47
+  TRACK 05 AUDIO
+    TITLE "Shine on You Crazy Diamond (Part VI-IX)"
+    PERFORMER "Pink Floyd"
+    INDEX 01 31:46:57
+
+=cut
+
+__END__
+
+=head1 NAME
+
+mp3cut - split MP3 files according to cue sheets
+
+=head1 SYNOPSIS
+
+sample [options] [file ...]
+
+Options:
+
+   --silent             don't produce verbose messages
+   --id3tags		provide ID3 tags on the files
+   --ident		show identification
+   --help		brief help message
+   --verbose		verbose information
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--id3tags>
+
+Provide ID3 tag information to the written MP3 files.
+
+This requires a yet unreleased additional package. Stay tuned.
+
+=item B<--verbose>
+
+More verbose information (default).
+
+=item B<--silent>
+
+Less verbose information.
+
+=item B<--version>
+
+Print a version identification to standard output and exits.
+
+=item B<--help>
+
+Print a brief help message to standard output and exits.
+
+=item B<--ident>
+
+Prints a program identification.
+
+=item I<file>
+
+Input file(s), which must be valid cue sheets.
+
+=back
+
+=head1 DESCRIPTION
+
+B<This program> will read the given cue sheets and spits the
+associated mp3 files according to the information in the cue sheet.
+
+The name of the MP3 file will be taken from the cue sheet. All tracks
+will be written with names derived from the track title, with spaces
+changed to underscores, the track number prefixed, and ".mp3" added.
+
+Some iterations may be necessary to find satisfying cut points, but it
+is easy to adjust the cue file data manually.
+
+=head1 USING CDDB ENTRY DATA
+
+B<mp3cut> does not understand CDDB entry data. A helper program,
+B<cddb2cue> can be used to generate a cue sheet from the CDDB info.
+
+Some iterations may be necessary to find satisfying cut points, and it
+is easier to correct a cue file than the CDDB info.
+
+=head1 AUTHOR
+
+Johan Vromans <jvromans@squirrel.nl>
+
+=head1 DISCLAIMER
+
+Sometimes the audio data is copied incorrectly. Always check your
+resultant files. Never throw away the original data. USE AT YOUR OWN
+RISK.
+
+=head1 COPYRIGHT
+
+This programs is Copyright 2003, Squirrel Consultancy.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the Perl Artistic License or the GNU General
+Public License as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version.
+
+=cut

@@ -1,0 +1,45 @@
+mp3cut version 1.04
+====================
+
+This package provides a couple of tools to cut and cat MP3 audio files
+at the frame level.
+
+* mp3cut uses a so called 'cue sheet' to cut an MP3 audio file into
+  individual pieves (usually tracks)
+
+* mp3cat concatenates the audio data from one or more MP3 files.
+
+* cddb2cue generates a cue file from a CDDB file.
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+  MPEG::Audio::File  0.03
+  CDDB::File	     1.03
+  Getopt::Long	     2.33
+
+DISCLAIMER
+
+Sometimes the audio data is copied incorrectly. Always check your
+resultant files. Never throw away the original data. USE AT YOUR OWN
+RISK.
+
+COPYRIGHT AND LICENCE
+
+This programs is Copyright 2003, Squirrel Consultancy.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the Perl Artistic License or the GNU General
+Public License as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version.
+

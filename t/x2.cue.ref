@@ -1,0 +1,51 @@
+PERFORMER "Pat Metheny"
+TITLE "x2"
+FILE "x2.mp3" WAVE
+  TRACK 01 AUDIO
+    TITLE "One Quiet Night"
+    PERFORMER "Pat Metheny"
+    INDEX 01 00:00:00
+  TRACK 02 AUDIO
+    TITLE "Song For The Boys"
+    PERFORMER "Pat Metheny"
+    INDEX 01 05:01:88
+  TRACK 03 AUDIO
+    TITLE "Don't Know Why"
+    PERFORMER "Pat Metheny"
+    INDEX 01 09:33:42
+  TRACK 04 AUDIO
+    TITLE "Another Chance"
+    PERFORMER "Pat Metheny"
+    INDEX 01 12:42:02
+  TRACK 05 AUDIO
+    TITLE "And Time Goes On"
+    PERFORMER "Pat Metheny"
+    INDEX 01 19:36:32
+  TRACK 06 AUDIO
+    TITLE "My Song"
+    PERFORMER "Pat Metheny"
+    INDEX 01 22:55:85
+  TRACK 07 AUDIO
+    TITLE "Peace Memory"
+    PERFORMER "Pat Metheny"
+    INDEX 01 27:18:16
+  TRACK 08 AUDIO
+    TITLE "Ferry Cross The Mersey"
+    PERFORMER "Pat Metheny"
+    INDEX 01 33:30:66
+  TRACK 09 AUDIO
+    TITLE "Over On 4th Street"
+    PERFORMER "Pat Metheny"
+    INDEX 01 37:28:80
+  TRACK 10 AUDIO
+    TITLE "I Will Find The Way"
+    PERFORMER "Pat Metheny"
+    INDEX 01 41:10:23
+  TRACK 11 AUDIO
+    TITLE "North to South, East to West"
+    PERFORMER "Pat Metheny"
+    INDEX 01 49:02:06
+  TRACK 12 AUDIO
+    TITLE "Last Train Home"
+    PERFORMER "Pat Metheny"
+    INDEX 01 61:06:04
