@@ -3,7 +3,7 @@
 sub differ {
     # Perl version of the 'cmp' program.
     # Returns 1 if the files differ, 0 if the contents are equal.
-    my ($old, $new) = @_;
+    my ($old, $new, $text) = @_;
     unless ( open (F1, $old) ) {
 	print STDERR ("$old: $!\n");
 	return 1;
@@ -12,6 +12,19 @@ sub differ {
 	print STDERR ("$new: $!\n");
 	return 1;
     }
+
+    if ( $text ) {
+	while ( 1 ) {
+	    my $line1 = <F1>;
+	    my $line2 = <F2>;
+	    return 1 if ($line1 xor $line2);
+	    return 0 if !($line1 or $line2);
+	    chomp($line1);
+	    chomp($line2);
+	    return 1 unless $line1 eq $line2;
+	}
+    }
+
     my ($buf1, $buf2);
     my ($len1, $len2);
     while ( 1 ) {

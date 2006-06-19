@@ -1,5 +1,5 @@
 %define modname mp3cut
-%define modversion 1.10
+%define modversion 1.11
 %define modpath authors/id/J/JV/JV/%{modname}-%{modversion}.tar.gz
 %define modreq perl
 
